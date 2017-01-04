@@ -97,3 +97,89 @@ for (var i = 0; i < 5; i++) {
    rows.push(row);
 }
 console.log(drawTable(rows));
+
+
+function UnderlinedCell(inner) {
+  this.inner = inner;
+};
+UnderlinedCell.prototype.minWidth = function () {
+  return this.inner.minWidth();
+};
+UnderlinedCell.prototype.minHeight = function () {
+  return this.inner.minHeight() + 1;
+}
+UnderlinedCell.prototype.draw = function (width, height) {
+  return this.inner.draw(width, height - 1)
+    .concat([repeat("-", width)]);
+};
+
+
+
+
+
+
+
+
+// Задаём функцию, которая будет вызвана при чтении и записи свойств,
+// в существующий объект
+//
+// Object.defineProperty(TextCell.prototype, "heightProp", {
+//   get: function () {
+//     return this.text.length;
+//   }
+// });
+//
+// let cell = new TextCell("yes\nwell");
+// console.log("height of the cell", cell.heightProp);
+//
+// cell.heightProp = 100;
+// console.log(cell.heightProp);
+
+// Задаем функцию, которая дополняет ячейку пробелами справа
+// Наследование
+
+function RTextCell(text) { // новый конструктор вызывает старый через call
+  TextCell.call(this, text) // передавая ему объект и значение
+}
+
+RTextCell.prototype = Object.create(TextCell.prototype); // создаем новый объект на основе старого
+RTextCell.prototype.draw = function (width, height) { // функция draw рисует новую ячейку с пробелами слева
+  var result = [];
+  for (var i = 0; i < height; i++) {
+    var line = this.text[i] || "";
+    result.push(repeat(" ", width - line.length) + line);
+  }
+    return result;
+};
+
+
+function dataTable(data) {
+  var keys = Object.keys(data[0]); // возвращает имена свойств объекта
+                                  // вот так [ 'name', 'height', 'country' ]
+                                 //console.log(keys);
+
+  var headers = keys.map(function (name) { // проходим функцией map по массиву [keys]
+    return new UnderlinedCell(new TextCell(name)); // строя таблицу ячеек
+  });
+
+// заполняем таблицу значениями и файла MOUNTAINS
+var body = data.map(function (row) {
+  return keys.map(function (name) {
+    //  тут поменяли и добавили условие
+    var value = row[name];
+
+    if (typeof value == "number")
+      return new RTextCell(String(value)); // рисуем пробелы слева для цифровых ячеек
+
+    else
+    return new TextCell(String(value));
+  });
+});
+
+return [headers].concat(body); // склеиваем подчеркнутый заголовок и тело(саму таблицу) с данными
+
+}
+// Подключаем MOUNTAINS
+var MOUNTAINS = require('./mountain.js');
+
+console.log(drawTable(dataTable(MOUNTAINS)));

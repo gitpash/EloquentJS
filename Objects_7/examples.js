@@ -34,34 +34,62 @@
 // killerRabbit.speak("Хрясь!")
 
 //  Конструктор - способ создания объектов, наследуемых от некоего прототипа.
-
-function Rabbit(type) {
-  this.type = type;
-}
-
-var killerRabbit = new Rabbit("убойный");
-var blackRabbit = new Rabbit("черный");
-// console.log(blackRabbit.type);
-// конструкторы(как и все функции ) автоматически получают свойство prototype
-// которое содержит пустой обЪект, происходящий от Object.prototype
-// и каждый экземпляр, созданный этим конструктором будет иметь этот обЪект
-// в качестве прототипа
 //
-// Rabbit.prototype.speak = function (line) {
-//   console.log("А " + this.type + " кролик говорит'" +   line + "'");
+// function Rabbit(type) {
+//   this.type = type;
+// }
+//
+// var killerRabbit = new Rabbit("убойный");
+// var blackRabbit = new Rabbit("черный");
+// // console.log(blackRabbit.type);
+// // конструкторы(как и все функции ) автоматически получают свойство prototype
+// // которое содержит пустой обЪект, происходящий от Object.prototype
+// // и каждый экземпляр, созданный этим конструктором будет иметь этот обЪект
+// // в качестве прототипа
+// //
+// // Rabbit.prototype.speak = function (line) {
+// //   console.log("А " + this.type + " кролик говорит'" +   line + "'");
+// // };
+// // blackRabbit.speak("Всем капец!")
+//
+// Rabbit.prototype.teeth = "мелкие";
+// console.log(killerRabbit.teeth);
+// killerRabbit.teeth = "длинные, острые и окровавленные"
+// console.log(killerRabbit.teeth);
+// console.log(blackRabbit.teeth);
+// console.log(Rabbit.prototype.teeth);
+//
+// // Танецкроликов
+//
+// Rabbit.prototype.dance = function () {
+//   console.log("A " + this.type + " rabit dancing jiga");
 // };
-// blackRabbit.speak("Всем капец!")
+// killerRabbit.dance();
 
-Rabbit.prototype.teeth = "мелкие";
-console.log(killerRabbit.teeth);
-killerRabbit.teeth = "длинные, острые и окровавленные"
-console.log(killerRabbit.teeth);
-console.log(blackRabbit.teeth);
-console.log(Rabbit.prototype.teeth);
+// Геттеры и Сеттеры
+//
+// let pile = {
+//   elements: ["shell", "pile", "worm"],
+//   get height() {
+//     return this.elements.length;
+//   },
+//   set height(value) {
+//     console.log("will ignore attempt to set height", value);
+//   }
+// };
+//
+// console.log(pile.height);
+//
+// pile.height = 100;
 
-// Танецкроликов
+// Задаём функцию, которая будет вызвана при чтении и записи свойств,
+// в существующий объект
 
-Rabbit.prototype.dance = function () {
-  console.log("A " + this.type + " rabit dancing jiga");
-};
-killerRabbit.dance();
+Object.defineProperty(TextCell.prototype, "heightProp", {
+  get: function () {
+    return this.text.length;
+  }
+});
+
+let cell = new TextCell("yes\nwell");
+console.log(cell.heightProp);

@@ -81,15 +81,3 @@
 // console.log(pile.height);
 //
 // pile.height = 100;
-
-// Задаём функцию, которая будет вызвана при чтении и записи свойств,
-// в существующий объект
-
-Object.defineProperty(TextCell.prototype, "heightProp", {
-  get: function () {
-    return this.text.length;
-  }
-});
-
-let cell = new TextCell("yes\nwell");
-console.log(cell.heightProp);

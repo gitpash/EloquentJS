@@ -30,8 +30,8 @@ Vector.prototype.plus = function (other) {
 // или берем один массив, размера width * height, и решить что
 // элемент(x,y) находится в позиции x + (y * width)
 //
-// let grid = ["top left",    "top middle",    "top right",
-//             "bottom left", "bottom middle", "bottom right"]
+let grid = ["top left",    "top middle",    "top right",
+            "bottom left", "bottom middle", "bottom right"]
 // console.log(grid[2+ (1 * 3)])
 
 // далее создаем объект Grid с основными методами
@@ -140,3 +140,79 @@ function Wall() {} // простой объект не имеет метода a
 let world = new World(plan, {'#': Wall,
                               'o': BouncingCritter})
 console.log(world.toString());
+
+// зададим прототипу Grid метод forEach, который вызывает заданную
+//функцию для каждого элемента сетки, который не равен null или undefined
+
+Grid.prototype.forEach = function (f, context) {
+  for (let y = 0; y < this.height; y++) {
+    for (let x = 0; x < this.width; x++) {
+      let value = this.space[x + y * this.width]
+      if (value != null)
+        f.call(context, value, new Vector(x, y))
+    }
+  }
+}
+
+// создадим метод turn, который обходит сетку методом forEach и вызывает себя
+// для объектов, у которых есть метод act(если такое дейсвие допустимо)
+
+World.prototype.turn = function () {
+  let acted = []
+  this.grid.forEach(function (critter, vector) {
+    if (critter.act && acted.indexOf(critter) == -1) {
+      acted.push(critter)
+      this.letAct(critter, vector)
+    }
+  }, this)
+}
+
+World.prototype.letAct = function (critter, vector) {
+  let action = critter.act(new View(this, vector))
+  if (action && action.type == 'move') {
+    let dest = this.checkDestination(action, vector)
+    if (dest && this.grid.get(dest) == null) {
+      this.grid.set(vector, null)
+      this.grid.set(dest, critter)
+    }
+  }
+}
+
+World.prototype.checkDestination = function (action, vector) {
+  if (direction.hasOwnProperty(action.direction)) {
+    let dest = vector.plus(directions[action.direction])
+    if (this.grid.isInside(dest))
+      return dest
+  }
+}
+
+function View(world, vector) {
+  this.world = world
+  this.vector = vector
+}
+
+View.prototype.look = function (dir) { // метод look вычисляет координаты цели
+  let target = this.vector.plus(directions[grid])
+  if (this.world.grid.isInside(target))  // если она внутри сетки(grid) то
+    return charFromElement(this.world.grid.get(target)) // получает символ, соответствующий элементу находящемуся там
+  else
+    return '#' // есди нет, то как будто натыкается на стену(если нет стен - не дает выпасть с поля)
+}
+// метод look вычисляет координаты
+View.prototype.findAll = function (ch) {
+  let found = []
+  for (let dir in directions)
+    if(this.look(dir) == ch)// если коорд. внутри сетки
+      found.push(dir) // то получает символ этого элемента
+  return found
+}
+// для элементов снаружи look отображает стену
+View.prototype.find = function (ch) {
+  let found = this.findAll(ch)
+  if (found.length == 0) return null
+  return randomeElement(found)
+}
+for (let i = 0; i < 5; i++) {
+  world.turn()
+  console.log(world.toString());
+}
